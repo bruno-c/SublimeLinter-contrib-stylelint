@@ -75,7 +75,7 @@ class Stylelint(NodeLinter):
                 else:
                     yield (True, line, col, type, "", text, None)
 
-        yield super().find_errors(output)
+        return super().find_errors(output)
 
     def communicate(self, cmd, code=None):
         """Run an external executable using stdin to pass code and return its output."""
