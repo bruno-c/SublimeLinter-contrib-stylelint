@@ -46,8 +46,8 @@ class Stylelint(NodeLinter):
         We override this method to handle parsing eslint crashes.
         """
         data = None
-
         match = self.crash_regex.match(output)
+
         if match:
             msg = "Stylelint crashed: %s" % match.group(1)
             yield (match, 0, None, "Error", "", msg, None)
@@ -63,6 +63,11 @@ class Stylelint(NodeLinter):
                 text = option['text']
 
                 yield (True, 0, None, "Error", "", text, None)
+
+            for option in data['deprecations']:
+                text = option['text']
+
+                yield (True, 0, None, "", "Warning", text, None)
 
             for warning in data['warnings']:
                 line = warning['line'] - self.line_col_base[0]
