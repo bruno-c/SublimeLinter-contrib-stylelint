@@ -12,15 +12,17 @@
 import json
 import os
 import re
+import sublime
 
 from SublimeLinter.lint import NodeLinter
+
 
 class Stylelint(NodeLinter):
     """Provides an interface to stylelint-m."""
 
     syntax = ('css', 'css3', 'sass', 'scss', 'postcss', 'less', 'sugarss', 'sss')
     npm_name = 'stylelint'
-    cmd = ('stylelint', '--formatter', 'json','--stdin', '--stdin-filename', '@')
+    cmd = ('stylelint', '--formatter', 'json', '--stdin', '--stdin-filename', '@')
     version_args = '--version'
     version_re = r'(?P<version>\d+\.\d+\.\d+)'
     version_requirement = '>= 7.0.0'
@@ -43,7 +45,6 @@ class Stylelint(NodeLinter):
 
         We override this method to handle parsing eslint crashes.
         """
-
         data = None
 
         match = self.crash_regex.match(output)
@@ -74,12 +75,10 @@ class Stylelint(NodeLinter):
                 else:
                     yield (True, line, col, type, "", text, None)
 
-        return super().find_errors(output)
-
+        yield super().find_errors(output)
 
     def communicate(self, cmd, code=None):
         """Run an external executable using stdin to pass code and return its output."""
-
         if '__RELATIVE_TO_FOLDER__' in cmd:
 
             relfilename = self.filename
@@ -105,6 +104,4 @@ class Stylelint(NodeLinter):
             if fileext and not fileext[1:] in self.syntax:
                 cmd.extend('--syntax', 'css')
 
-
         return super().communicate(cmd, code)
-
