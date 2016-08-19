@@ -24,11 +24,11 @@ class Stylelint(NodeLinter):
     version_args = '--version'
     version_re = r'(?P<version>\d+\.\d+\.\d+)'
     version_requirement = '>= 7.0.0'
-    
+
     line_col_base = (1, 1)
 
     crash_regex = re.compile(
-        r'^(.*?)\r?\n\w*Error: \1',
+        r'^.*?\r?\n?\w*Error: (.*)',
         re.MULTILINE
     )
 
@@ -44,21 +44,28 @@ class Stylelint(NodeLinter):
         We override this method to handle parsing eslint crashes.
         """
 
+        data = None
+
         match = self.crash_regex.match(output)
         if match:
             msg = "Stylelint crashed: %s" % match.group(1)
-            return [(match, 0, None, "Error", "", msg, None)]
+            yield (match, 0, None, "Error", "", msg, None)
 
         try:
-            if output:
+            if output and not match:
                 data = json.loads(output)[0]
         except:
-            return [(match, 0, None, "Error", "", "Output json data error", None)]
+            yield (match, 0, None, "Error", "", "Output json data error", None)
 
         if data and 'errored' in data:
+            for option in data['invalidOptionWarnings']:
+                text = option['text']
+
+                yield (True, 0, None, "Error", "", text, None)
+
             for warning in data['warnings']:
-                line = warning['line'] - 1
-                col = warning['column'] - 1
+                line = warning['line'] - self.line_col_base[0]
+                col = warning['column'] - self.line_col_base[1]
                 type = warning['severity']
                 text = warning['text']
 
