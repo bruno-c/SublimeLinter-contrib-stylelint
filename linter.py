@@ -18,7 +18,7 @@ from SublimeLinter.lint import NodeLinter
 
 
 class Stylelint(NodeLinter):
-    """Provides an interface to stylelint-m."""
+    """Provides an interface to stylelint."""
 
     syntax = ('css', 'css3', 'sass', 'scss', 'postcss', 'less', 'sugarss', 'sss')
     npm_name = 'stylelint'
@@ -43,7 +43,7 @@ class Stylelint(NodeLinter):
         """
         Parse errors from linter's output.
 
-        We override this method to handle parsing eslint crashes.
+        We override this method to handle parsing stylelint crashes.
         """
         data = None
         match = self.crash_regex.match(output)
